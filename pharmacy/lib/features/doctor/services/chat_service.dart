@@ -5,7 +5,7 @@ import '../../../../services/services/api_service.dart';
 
 class ChatService {
   late IO.Socket socket;
-  final String _baseUrl = 'http://10.0.2.2:3000'; // Android emulator localhost
+  final String _baseUrl = 'https://medics-two.vercel.app'; // Production URL
 
   final _messageController = StreamController<ChatMessage>.broadcast();
   Stream<ChatMessage> get messageStream => _messageController.stream;

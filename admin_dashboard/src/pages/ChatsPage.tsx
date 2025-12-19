@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Layout, List, Avatar, Input, Button, Spin, Typography } from 'antd';
 import { UserOutlined, SendOutlined, MessageOutlined } from '@ant-design/icons';
-import { io, Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import axiosClient from '../api/axiosClient';
 import { useAuthStore } from '../store/authStore';
 
@@ -26,7 +26,7 @@ interface ChatUser {
 
 const ChatsPage: React.FC = () => {
   const { user, token } = useAuthStore();
-  const [socket, setSocket] = useState<Socket | null>(null);
+  // const [socket, setSocket] = useState<Socket | null>(null); // Unused variable removed
   const [conversations, setConversations] = useState<ChatUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -70,7 +70,7 @@ const ChatsPage: React.FC = () => {
         });
       });
 
-      setSocket(newSocket);
+      // setSocket(newSocket);
 
       return () => {
         newSocket.disconnect();

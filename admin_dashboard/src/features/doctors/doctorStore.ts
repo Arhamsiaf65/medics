@@ -72,7 +72,7 @@ export const useDoctorStore = create<DoctorState>((set) => ({
     updateDefaultSlots: async (id, slots) => {
         set({ loading: true, error: null });
         try {
-            const response = await axiosClient.put(`/doctors/${id}/schedule/default`, { defaultTimeSlots: slots });
+            await axiosClient.put(`/doctors/${id}/schedule/default`, { defaultTimeSlots: slots });
             // Update the doctor in local state
             set((state) => ({
                 doctors: state.doctors.map(d => d.id === id ? { ...d, defaultTimeSlots: slots } : d),

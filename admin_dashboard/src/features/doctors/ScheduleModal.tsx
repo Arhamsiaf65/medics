@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Tabs, Tag, Input, Button, DatePicker, message, Spin, Space } from 'antd';
-import { PlusOutlined, DeleteOutlined, CalendarOutlined, ClockCircleOutlined } from '@ant-design/icons';
+// const { updateDefaultSlots, updateDateSchedule, deleteDateSchedule } = useDoctorStore();
+// Removed unused loading from here, it seems loading is used in line 17 but shadowed or duplicated?
+// Wait, line 17: const [loading, setLoading] = useState(false);
+// Line 132 in error log says 'loading' is declared but never read.
+// Let's check line 132. It's in `renderSlotEditor` params.
+
+// Fixes based on error log:
+// 1. Space, DeleteOutlined unused in imports.
+// 2. date unused in onDateChange.
+// 3. loading unused in renderSlotEditor.
+
+// Let's just fix the specific lines.
+
+// Fix imports
+import { Modal, Tabs, Tag, Input, Button, DatePicker, message, Spin } from 'antd';
+import { PlusOutlined, CalendarOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useDoctorStore } from './doctorStore';
 import type { Doctor } from '../../types';
@@ -61,7 +75,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ doctor, open, onClose }) 
     };
 
     // --- DATE SPECIFIC HANDLERS ---
-    const onDateChange = async (date: dayjs.Dayjs | null, dateString: string) => {
+    const onDateChange = async (_date: dayjs.Dayjs | null, dateString: string) => {
         if (!dateString || !doctor) return;
         setSelectedDate(dateString);
         setDateLoading(true);
@@ -129,7 +143,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ doctor, open, onClose }) 
         newVal: string,
         setNewVal: (v: string) => void,
         onAdd: () => void,
-        loading: boolean
+        // loading: boolean // Removed unused parameter
     ) => (
         <div className="space-y-4 py-4">
             <div className="flex gap-2">
@@ -175,7 +189,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ doctor, open, onClose }) 
                     children: (
                         <div>
                             <p className="text-gray-500 mb-2">These slots will be applied to every day unless overridden.</p>
-                            {renderSlotEditor(defaultSlots, handleRemoveDefaultSlot, newSlot, setNewSlot, handleAddDefaultSlot, loading)}
+                            {renderSlotEditor(defaultSlots, handleRemoveDefaultSlot, newSlot, setNewSlot, handleAddDefaultSlot)}
                             <div className="flex justify-end gap-2 mt-4">
                                 <Button onClick={onClose}>Cancel</Button>
                                 <Button type="primary" loading={loading} onClick={handleSaveDefault}>Save Defaults</Button>
@@ -198,7 +212,7 @@ const ScheduleModal: React.FC<ScheduleModalProps> = ({ doctor, open, onClose }) 
 
                             {selectedDate ? (
                                 <Spin spinning={dateLoading}>
-                                    {renderSlotEditor(dateSlots, handleRemoveDateSlot, newDateSlot, setNewDateSlot, handleAddDateSlot, loading)}
+                                    {renderSlotEditor(dateSlots, handleRemoveDateSlot, newDateSlot, setNewDateSlot, handleAddDateSlot)}
                                     <div className="flex justify-end gap-2 mt-4">
                                         <Button type="primary" loading={loading} onClick={handleSaveDate}>Save Override</Button>
                                     </div>
