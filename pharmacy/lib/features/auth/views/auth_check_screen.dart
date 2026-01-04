@@ -23,9 +23,9 @@ class _AuthCheckScreenState extends State<AuthCheckScreen> {
 
   Future<void> _checkLoginStatus() async {
     if (!mounted) return;
-    print("checking login status");
+
     final isLoggedIn = await context.read<LoginViewModel>().checkLoginStatus();
-    print("isLoggedIn: $isLoggedIn");
+
     if (mounted) {
       if (isLoggedIn) {
         Navigator.of(context).pushReplacement(

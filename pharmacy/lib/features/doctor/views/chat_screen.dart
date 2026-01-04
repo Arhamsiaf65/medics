@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async'; // For Timer
 import 'package:provider/provider.dart';
 
 import '../data/models/chat_message.dart'; 
@@ -24,6 +25,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<dynamic> _messages = []; 
   String? currentUserId;
   bool _isLoading = true;
+  Timer? _pollingTimer;
 
   @override
   void initState() {
@@ -53,7 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           }
         } catch (e) {
-          print("Error loading chat history: $e");
+
           if (mounted) setState(() => _isLoading = false);
         }
 
@@ -61,14 +63,23 @@ class _ChatScreenState extends State<ChatScreen> {
         _chatService.messageStream.listen((message) {
           if (mounted) {
             setState(() {
-               // Avoid duplicates if we loaded history and socket sends same
-               // Logic: check ID?
-               if (!_messages.any((m) => m.id == message.id)) {
+               // Check for optimistic message (null ID) with same text to replace
+               final index = _messages.indexWhere((m) => m.id == null && m.text == message.text && m.isFromUser == message.isFromUser);
+               
+               if (index != -1) {
+                 // Replace optimistic with real
+                 _messages[index] = message;
+               } else if (!_messages.any((m) => m.id == message.id)) {
+                 // Add if not exists
                   _messages.add(message);
                }
             });
           }
         });
+
+        // Start Polling (Vercel Fallback)
+        _startPolling();
+
       }
     } else {
       // Handle unauthenticated case
@@ -81,8 +92,47 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _startPolling() {
+    // Poll every 3 seconds
+    _pollingTimer = Timer.periodic(const Duration(seconds: 3), (timer) async {
+      if (!mounted || currentUserId == null) {
+        timer.cancel();
+        return;
+      }
+      try {
+        final newMessages = await _chatService.fetchMessages(widget.doctor.id);
+        if (mounted) {
+          setState(() {
+            for (var message in newMessages) {
+               // Deduplicate based on ID
+               if (!_messages.any((m) => m.id == message.id)) {
+                 // Also check if we have an optimistic version of this message
+                 // If so, replace it. 
+                 // Optimistic match: same text, same user, null ID
+                 final optimisticIndex = _messages.indexWhere((m) => 
+                    m.id == null && 
+                    m.text == message.text && 
+                    m.isFromUser == message.isFromUser
+                 );
+
+                 if (optimisticIndex != -1) {
+                   _messages[optimisticIndex] = message;
+                 } else {
+                   _messages.add(message);
+                 }
+               }
+            }
+          });
+        }
+      } catch (e) {
+        // Silent error on polling
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _pollingTimer?.cancel();
     _chatService.dispose();
     _controller.dispose();
     super.dispose();
@@ -93,22 +143,31 @@ class _ChatScreenState extends State<ChatScreen> {
     
     final text = _controller.text;
     _controller.clear();
+
+    // OPTIMISTIC UPDATE: Add message immediately to list
+    final tempMessage = ChatMessage(
+      userId: currentUserId!, 
+      doctorId: widget.doctor.id, 
+      text: text, 
+      isFromUser: true, 
+      createdAt: DateTime.now()
+    );
+
+    setState(() {
+      _messages.add(tempMessage);
+    });
     
     try {
       await _chatService.sendMessage(text, widget.doctor.id);
-      // We don't manually add to _messages list here if we trust the socket event will come back
-      // OR we can add it safely if we know the socket event might be delayed.
-      // The backend emits 'new_message' to the sender as well (see console logs). 
-      // If we add it here AND listen to socket, we get duplicates unless we deduplicate by ID.
-      // But the message ID is created on backend.
-      // So best practice: 
-      // 1. Optimistic update with temp ID?
-      // 2. Or just wait for socket (fast enough for local).
-      // Let's rely on socket for now to avoid duplication logic complexity.
+      // Success - duplication logic in listener handles the rest
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to send message: $e')),
       );
+      // Optional: Remove message on failure
+      setState(() {
+        _messages.remove(tempMessage);
+      });
     }
   }
 

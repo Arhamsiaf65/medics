@@ -106,7 +106,7 @@ class _ArticlePageState extends State<ArticlesPage> {
                   articles.isEmpty 
                   ? const Center(child: Text("No articles found"))
                   : SizedBox(
-                    height: 180, // Adjusted height for ArticleCard
+                    height: 220, // Adjusted height for ArticleCard (Fix overflow)
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: articles.length > 5 ? 5 : articles.length,

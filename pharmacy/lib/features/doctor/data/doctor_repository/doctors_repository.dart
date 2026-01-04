@@ -8,61 +8,40 @@ import '../models/doctor_schedule.dart';
 
 class DoctorsRepository {
 
-  // Dummy doctors list
+ 
+
+  // Dummy Data for fallback/presentation
   final List<Doctor> dummyDoctors = [
     Doctor(
       id: '1',
-      name: "Dr. Ayesha Khan",
-      specialty: "Cardiologist",
-      rating: 4.8,
-      distance: "2.1 km",
-      imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0aaw2Mp8Ua2c4dE1yyAV61_4NH6Zc3gpbog&s",
-      schedule: {
-        "2025-02-10": ["09:00 AM", "10:00 AM", "01:00 PM"],
-        "2025-02-11": ["11:00 AM", "12:30 PM"],
-      },
+      name: 'Dr. Marcus Horiz',
+      specialty: 'Cardiologist',
+      rating: 4.7,
+      distance: '800m away',
+      imageUrl: 'assets/images/doctor_marcus.jpg',
+      schedule: {},
     ),
     Doctor(
-      id: '1',
-      name: "Dr. Ahmed Raza",
-      specialty: "Dermatologist",
-      rating: 4.6,
-      distance: "3.4 km",
-      imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0aaw2Mp8Ua2c4dE1yyAV61_4NH6Zc3gpbog&s",
-      schedule: {
-        "2025-02-10, Mon": ["08:00 AM", "09:00 AM"],
-        "2025-02-12, Wed": ["01:00 PM", "03:00 PM"],
-      },
+      id: '2',
+      name: 'Dr. Maria Elena',
+      specialty: 'Psychologist',
+      rating: 4.9,
+      distance: '1.5km away',
+      imageUrl: 'assets/images/doctor_maria.jpg',
+      schedule: {},
+    ),
+    Doctor(
+      id: '3',
+      name: 'Dr. Stevi Jessi',
+      specialty: 'Orthopedist',
+      rating: 4.8,
+      distance: '2km away',
+      imageUrl: 'assets/images/doctor_stevi.jpg',
+      schedule: {},
     ),
   ];
 
-  // Top doctors list
-  final List<Doctor> topDoctorsList = [
-    Doctor(
-      id: '1',
-      name: "Dr. Ayesha Khan",
-      specialty: "Cardiologist",
-      rating: 4.8,
-      distance: "2.1 km",
-      imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0aaw2Mp8Ua2c4dE1yyAV61_4NH6Zc3gpbog&s",
-      schedule: {
-        "2025-02-10, Mon": ["09:00 AM", "10:00 AM", "01:00 PM"],
-        "2025-02-11, Tue": ["11:00 AM", "12:30 PM"],
-      },
-    ),
-    Doctor(
-      id: '1',
-      name: "Dr. Ahmed Raza",
-      specialty: "Dermatologist",
-      rating: 4.6,
-      distance: "3.4 km",
-      imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ0aaw2Mp8Ua2c4dE1yyAV61_4NH6Zc3gpbog&s",
-      schedule: {
-        "2025-02-10, Mon": ["08:00 AM", "09:00 AM"],
-        "2025-02-12, Wed": ["01:00 PM", "03:00 PM"],
-      },
-    ),
-  ];
+  List<Doctor> get topDoctorsList => dummyDoctors;
 
   // ---------------------------
   // BASIC FETCH FUNCTIONS

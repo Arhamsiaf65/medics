@@ -22,16 +22,16 @@ const doctorSearchTool = tool(
         { name: { contains: query, mode: "insensitive" } },
         { specialty: { contains: specialty, mode: "insensitive" } }
       ];
-    } 
-    
+    }
+
     // If only query provided
     else if (query) {
       where.OR = [
         { name: { contains: query, mode: "insensitive" } },
         { specialty: { contains: query, mode: "insensitive" } }
       ];
-    } 
-    
+    }
+
     // If only specialty provided
     else if (specialty) {
       where.specialty = { contains: specialty, mode: "insensitive" };
@@ -196,8 +196,8 @@ exports.chatWithAI = async (req, res) => {
     const userId = req.user.id;
 
     if (!message) return res.status(400).json({ error: "Message is required" });
-    console.log("user message", message);
-    
+
+
     // --- Session Handling ---
     let sessionId = providedSessionId;
     if (!sessionId) {
@@ -249,7 +249,7 @@ exports.chatWithAI = async (req, res) => {
     // --- Save conversation ---
     await history.addMessage(new HumanMessage(message));
     await history.addMessage(new AIMessage(finalText));
-console.log("ai response", finalText);
+
 
     res.json({ sessionId, response: finalText });
   } catch (error) {

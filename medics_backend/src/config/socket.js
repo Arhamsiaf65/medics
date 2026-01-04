@@ -11,19 +11,19 @@ const init = (server) => {
     });
 
     io.on('connection', (socket) => {
-        console.log('New client connected', socket.id);
+
 
         // Join a room based on user ID logic
         socket.on('join', (userId) => {
-            if (userId) {   
-                console.log(`Socket ${socket.id} joined room ${userId}`);
+            if (userId) {
+
                 socket.join(userId);
             }
         });
 
         // Handle disconnect
         socket.on('disconnect', () => {
-            console.log('Client disconnected', socket.id);
+
         });
     });
 

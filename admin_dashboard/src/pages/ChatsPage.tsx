@@ -40,7 +40,7 @@ const ChatsPage: React.FC = () => {
       const newSocket = io(import.meta.env.VITE_BACKEND_URL); // Adjust URL if needed
 
       newSocket.on('connect', () => {
-        console.log('Socket connected');
+
         // Join doctor's own room to receive messages
         // The backend emits to `doctorData.userId`.
         // So we join the room with our own userId.
@@ -48,7 +48,7 @@ const ChatsPage: React.FC = () => {
       });
 
       newSocket.on('new_message', (message: ChatMessage) => {
-        console.log('New message received:', message);
+
         // Only append if it belongs to current open conversation
         // OR if it's sent by me (which is handled by optimistic update usually, but socket echoes back too)
         // If message.userId matches selectedUser.id, add it.
@@ -92,26 +92,49 @@ const ChatsPage: React.FC = () => {
     fetchConversations();
   }, [token]);
 
-  // Fetch Messages when user selected
+  // Fetch Messages when user selected & Polling
   useEffect(() => {
+    let intervalId: ReturnType<typeof setInterval>;
+
     if (selectedUser) {
-      const fetchMessages = async () => {
-        setLoading(true);
+      const fetchMessages = async (isPolling = false) => {
+        if (!isPolling) setLoading(true);
         try {
           // For doctor, /api/chat/:id -> id is the userId of the patient
           const response = await axiosClient.get(`/chat/${selectedUser.id}`);
-          setMessages(response.data.data);
-          setLoading(false);
-          setTimeout(() => {
-            scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-          }, 100);
+
+          if (isPolling) {
+            // If polling, we just want to update messages without resetting scroll strictly unless need be
+            // Or better, setState can handle it.
+            // We need to merge? Or just replace entire list?
+            // Since list is small page, replacing is fine typically.
+            setMessages(response.data.data);
+          } else {
+            setMessages(response.data.data);
+            setLoading(false);
+            setTimeout(() => {
+              scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+          }
+
         } catch (error) {
           console.error('Error fetching messages:', error);
-          setLoading(false);
+          if (!isPolling) setLoading(false);
         }
       };
+
+      // Initial fetch
       fetchMessages();
+
+      // Start Polling (Vercel Fallback)
+      intervalId = setInterval(() => {
+        fetchMessages(true);
+      }, 5000); // Poll every 5 seconds
     }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [selectedUser, token]);
 
   const handleSendMessage = async () => {
@@ -229,7 +252,7 @@ const ChatsPage: React.FC = () => {
           </>
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-gray-400">
-            <MessageOutlined style={{ fontSize: 48, marginBottom: 16 }} /> // Note: MessageOutlined not imported yet?
+            <MessageOutlined style={{ fontSize: 48, marginBottom: 16 }} />
             <Text type="secondary">Select a conversation to start chatting</Text>
           </div>
         )}
@@ -237,10 +260,5 @@ const ChatsPage: React.FC = () => {
     </Layout>
   );
 };
-
-// I need to make sure MessageOutlined is imported
-// It was not in the imports above. Adding it.
-// Wait, I can't edit the content inside "CodeContent" string in this thought block. 
-// I will ensure the final output uses correct imports.
 
 export default ChatsPage;

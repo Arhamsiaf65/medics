@@ -14,7 +14,7 @@ class AuthRepository {
   Future<UserModel> login(String email, String password) async {
     try {
       // Authenticate with Firebase
-      print("atempt to login");
+
       final credential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -30,11 +30,13 @@ class AuthRepository {
         'password': password,
       });
 
-      print("DEBUG: Raw Login API Response: $response");
+      if (response['success'] == false) {
+        throw Exception(response['error'] ?? response['message'] ?? 'Login failed');
+      }
 
       // Parse the API response
       final userModel = UserModel.fromApiResponse(response);
-      print("Login Parsed User: ${userModel.toMap()}"); // Debug log
+
 
       if (userModel.id == null || userModel.token == null) {
          throw Exception('Critical Error: Failed to parse User ID or Token from API. ID: ${userModel.id}, Token: ${userModel.token}');
@@ -48,7 +50,7 @@ class AuthRepository {
     } on FirebaseAuthException catch (e) {
       throw Exception('Login failed: ${e.message}');
     } catch (e) {
-      print("Login Error: $e");
+
       throw Exception('Login failed: $e');
     }
   }
@@ -75,10 +77,13 @@ class AuthRepository {
         'password': password,
       });
 
-      print("signup response, $response");
+      if (response['success'] == false) {
+        throw Exception(response['error'] ?? response['message'] ?? 'Sign up failed');
+      }
+
       // Parse the API response
       final userModel = UserModel.fromApiResponse(response);
-      print("user model, $userModel");
+
 
       if (userModel.id == null || userModel.token == null) {
          throw Exception('Critical Error: Failed to parse User ID or Token from API validation. ID: ${userModel.id}, Token: ${userModel.token}');
@@ -142,7 +147,7 @@ class AuthRepository {
       // 1. Check if we have any user stored
       final isUserStored = await _db.isUserLoggedIn();
       if (!isUserStored) return null;
-      print("clearing useres");
+
       // 2. Get the first user (assuming single user session for mobile)
       // await _db.clearUsers();
       final userData = await _db.getFirstUser();

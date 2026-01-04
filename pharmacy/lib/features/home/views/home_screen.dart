@@ -93,23 +93,7 @@ class  HomeScreen extends StatelessWidget {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0, top: 20.0),
-            child: IconButton(
-              icon: const Icon(Icons.notifications_none_outlined, color: Colors.black, size: 28),
-              onPressed: () async {
-                final authRepo = Provider.of<AuthRepository>(context, listen: false);
-                final user = await authRepo.getCurrentUser();
-                if (user != null && user.id != null) {
-                  Navigator.pushNamed(context, Routes.notifications, arguments: user.id);
-                } else {
-                   ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please log in to view notifications')),
-                   );
-                }
-              },
-            ),
-          ),
+
           Padding(
             padding: const EdgeInsets.only(right: 16.0, top: 20.0),
             child: IconButton(
@@ -205,7 +189,7 @@ class  HomeScreen extends StatelessWidget {
 
 
 
-  // TODO: I will do it separeate later in widget folder
+
 
   // PROTECTION BANNER
   Widget _Banner(BuildContext context) {

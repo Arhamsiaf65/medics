@@ -4,7 +4,7 @@ import 'package:pharmacy/features/auth/data/repositories/auth_repository.dart';
 
 class AIService {
   final AuthRepository authRepository;
-  // TODO: Move base URL to a config or environment variable
+  // Base URL for API
   final String baseUrl = 'https://medics-two.vercel.app/api/ai'; // Production URL
 
   AIService(this.authRepository);

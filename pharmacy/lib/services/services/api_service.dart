@@ -16,7 +16,7 @@ class ApiService {
         headers['Authorization'] = 'Bearer ${user['token']}';
       }
     } catch (e) {
-      print("⚠️ Error fetching token for headers: $e");
+
     }
     return headers;
   }

@@ -20,18 +20,18 @@ class ChatService {
     socket.connect();
 
     socket.onConnect((_) {
-      print('Connected to socket');
+
       socket.emit('join', userId);
     });
 
     socket.on('new_message', (data) {
-      print('New message: $data');
+
       if (data != null) {
         _messageController.add(ChatMessage.fromJson(data));
       }
     });
 
-    socket.onDisconnect((_) => print('Disconnected'));
+
   }
 
 
@@ -45,7 +45,7 @@ class ChatService {
       // or we can manually add it to stream if we want strictly optimistic + confirmation
       // The screen already does optimistic update. 
     } catch (e) {
-      print('Error sending message: $e');
+
       throw e;
     }
   }
@@ -60,7 +60,7 @@ class ChatService {
         throw Exception(response['message'] ?? 'Failed to fetch messages');
       }
     } catch (e) {
-      print('Error fetching messages: $e');
+
       throw e;
     }
   }

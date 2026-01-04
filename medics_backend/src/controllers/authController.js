@@ -11,8 +11,8 @@ const register = async (req, res, next) => {
         const { name, email, password } = req.body;
 
 
-        console.log("here for registration");
-        
+
+
         // Validate required fields
         if (!name || !email || !password) {
             return res.status(400).json({
@@ -23,7 +23,7 @@ const register = async (req, res, next) => {
         }
 
         // Check if user already exists
-        console.log("email to check:", email);
+
         const existingUser = await prisma.user.findUnique({
             where: { email: email },
         });
@@ -90,7 +90,7 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        console.log("Login attempt for email:", email);
+
         // Validate required fields
         if (!email || !password) {
             return res.status(400).json({

@@ -27,7 +27,7 @@ const sendNotification = async (userId, title, message, type = 'general', metada
         };
 
         const docRef = await db.collection('notifications').add(notificationData);
-        console.log(`Notification sent to user ${userId}, Doc ID: ${docRef.id}`);
+
         return docRef.id;
     } catch (error) {
         console.error('Error sending notification:', error);

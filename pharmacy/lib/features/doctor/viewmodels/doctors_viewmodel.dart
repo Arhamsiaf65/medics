@@ -55,7 +55,7 @@ class DoctorsViewModel extends ChangeNotifier {
       }
 
     } catch (e) {
-      print("❌ Error in ViewModel getDoctorScheduleById: $e");
+
     }
   }
 
@@ -73,7 +73,7 @@ class DoctorsViewModel extends ChangeNotifier {
       availableSlots = scheduleItem.timeSlots;
       notifyListeners();
     } catch (e) {
-      print("Error updating slots: $e");
+
       availableSlots = [];
       notifyListeners();
     }

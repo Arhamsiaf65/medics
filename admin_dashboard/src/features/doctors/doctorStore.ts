@@ -31,7 +31,7 @@ export const useDoctorStore = create<DoctorState>((set) => ({
     addDoctor: async (doctorData) => {
         set({ loading: true, error: null });
         try {
-            console.log("doctor data", doctorData)
+
 
             const response = await axiosClient.post('/doctors/create', doctorData);
             set((state) => ({

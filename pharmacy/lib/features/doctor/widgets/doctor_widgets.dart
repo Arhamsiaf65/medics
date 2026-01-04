@@ -177,10 +177,10 @@ Widget buildDateSelector({
       itemBuilder: (context, index) {
         final dateStr = dates[index]; // e.g. "2025-02-10, Mon"
         final parts = dateStr.split(',');
-        print(dateStr);
+
         // Correct check: parts must have 2 elements
         final day = parts.length > 1 ? parts[1].trim() : '';
-        print("day, $day");
+
         // Date string
         String dateFormatted = '';
         if (parts.isNotEmpty) {
@@ -188,7 +188,7 @@ Widget buildDateSelector({
           try {
             final dt = DateTime.parse(datePart);
             dateFormatted = DateFormat('d MMM').format(dt);
-            print("date, $dateFormatted");
+
             // "10 Feb"
           } catch (_) {
             dateFormatted = datePart; // fallback

@@ -15,7 +15,7 @@ class DBHelper {
     String path = join(await getDatabasesPath(), 'user_database.db');
     return await openDatabase(
       path,
-      version: 2, // Incremented version for schema update
+      version: 3, // Incremented version to force schema update
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -36,12 +36,11 @@ class DBHelper {
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      // Add new columns for version 2
-      await db.execute('ALTER TABLE users ADD COLUMN phone TEXT');
-      await db.execute('ALTER TABLE users ADD COLUMN profileImage TEXT');
-      await db.execute('ALTER TABLE users ADD COLUMN token TEXT');
-      await db.execute('ALTER TABLE users ADD COLUMN expiresAt TEXT');
+    // If we have a version mismatch, specifically stepping up to version 3,
+    // we drop and recreate to handle the schema change (e.g. ID type mismatch)
+    if (oldVersion < 3) {
+      await db.execute('DROP TABLE IF EXISTS users');
+      await _createDB(db, newVersion);
     }
   }
 
