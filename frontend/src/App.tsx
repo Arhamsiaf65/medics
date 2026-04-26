@@ -12,8 +12,12 @@ function App() {
   const { connect, disconnect } = useChatStore();
 
   useEffect(() => {
+    // Always verify session on mount against the server cookie.
+    // Do NOT include `user` in deps — that would re-fire on every auth state
+    // change and create a feedback loop.
     verifySession();
-  }, [verifySession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (user && user._id) {

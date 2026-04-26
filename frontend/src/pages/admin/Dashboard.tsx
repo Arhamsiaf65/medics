@@ -7,9 +7,11 @@ const { Title } = Typography;
 
 export const AdminDashboard = () => {
   const [stats, setStats] = useState({ doctors: 0, appointments: 0, admins: 0 });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true);
       try {
         const [docsRes, appsRes] = await Promise.all([
           api.get('/admin/doctors'),
@@ -31,6 +33,9 @@ export const AdminDashboard = () => {
 
       } catch (error) {
         console.error("Failed to fetch admin stats", error);
+        setStats({ doctors: 0, appointments: 0, admins: 0 });
+      } finally {
+        setLoading(false);
       }
     };
     fetchStats();
@@ -47,6 +52,7 @@ export const AdminDashboard = () => {
               value={stats.doctors}
               valueStyle={{ color: '#1890ff' }}
               prefix={<TeamOutlined />}
+              loading={loading}
             />
           </Card>
         </Col>
@@ -57,6 +63,7 @@ export const AdminDashboard = () => {
               value={stats.appointments}
               valueStyle={{ color: '#cf1322' }}
               prefix={<CalendarOutlined />}
+              loading={loading}
             />
           </Card>
         </Col>
@@ -67,6 +74,7 @@ export const AdminDashboard = () => {
               value={stats.admins}
               valueStyle={{ color: '#3f8600' }}
               prefix={<UserOutlined />}
+              loading={loading}
             />
           </Card>
         </Col>

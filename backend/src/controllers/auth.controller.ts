@@ -12,7 +12,7 @@ const generateToken = (id: string) => {
 };
 
 const generateRefreshToken = (id: string) => {
-  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET || 'fallback_refresh_secret', {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'fallback_secret', {
     expiresIn: '30d',
   });
 };
@@ -21,14 +21,14 @@ const setTokensInCookies = (res: Response, token: string, refreshToken: string) 
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: 'lax',   // 'strict' blocks cookies in cross-origin requests (e.g. localhost → Railway)
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   });
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: 'lax',   // 'strict' blocks cookies in cross-origin requests (e.g. localhost → Railway)
     maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
   });
 };
@@ -106,8 +106,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const logout = async (req: Request, res: Response): Promise<void> => {
-  res.clearCookie('token');
-  res.clearCookie('refreshToken');
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+  };
+  res.clearCookie('token', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
@@ -125,18 +130,23 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
 export const refreshTokenHandler = async (req: Request, res: Response): Promise<void> => {
   try {
     const refreshToken = req.cookies.refreshToken;
+    console.log('Refresh token attempt, cookie present:', !!refreshToken);
+
     if (!refreshToken) {
+      console.log('No refresh token in cookies');
       res.status(401).json({ message: 'Refresh token is required' });
       return;
     }
 
-    const secret = process.env.REFRESH_TOKEN_SECRET || 'fallback_refresh_secret';
+    const secret = process.env.JWT_SECRET || 'fallback_secret';
     jwt.verify(refreshToken, secret, (err: any, decoded: any) => {
       if (err) {
+        console.log('Refresh token verification failed:', err.message);
         res.status(403).json({ message: 'Invalid or expired refresh token' });
         return;
       }
 
+      console.log('Refresh token verified for user:', decoded.id);
       const newToken = generateToken(decoded.id);
       res.cookie('token', newToken, {
         httpOnly: true,
@@ -148,7 +158,7 @@ export const refreshTokenHandler = async (req: Request, res: Response): Promise<
       res.json({ message: 'Token refreshed successfully' });
     });
   } catch (error) {
-    console.error(error);
+    console.error('Refresh token handler error:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };

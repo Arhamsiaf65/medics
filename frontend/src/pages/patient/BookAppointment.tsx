@@ -47,7 +47,10 @@ export const BookAppointment = () => {
       setSlots(flattenedSlots as any);
       setDoctors(uniqueDocs as any);
     } catch (error) {
+      console.error("Failed to fetch available slots:", error);
       message.error("Failed to fetch available slots");
+      setSlots([]);
+      setDoctors([]);
     } finally {
       setLoading(false);
     }

@@ -7,9 +7,11 @@ const { Title } = Typography;
 
 export const DoctorDashboard = () => {
   const [stats, setStats] = useState({ total: 0, upcoming: 0, completed: 0 });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
+      setLoading(true);
       try {
         const response = await api.get('/appointments/doctor/appointments');
         const appointments = response.data;
@@ -20,6 +22,9 @@ export const DoctorDashboard = () => {
         });
       } catch (error) {
         console.error("Failed to fetch stats", error);
+        setStats({ total: 0, upcoming: 0, completed: 0 });
+      } finally {
+        setLoading(false);
       }
     };
     fetchStats();
@@ -36,6 +41,7 @@ export const DoctorDashboard = () => {
               value={stats.total}
               valueStyle={{ color: '#1890ff' }}
               prefix={<ClockCircleOutlined />}
+              loading={loading}
             />
           </Card>
         </Col>
@@ -46,6 +52,7 @@ export const DoctorDashboard = () => {
               value={stats.upcoming}
               valueStyle={{ color: '#cf1322' }}
               prefix={<CalendarOutlined />}
+              loading={loading}
             />
           </Card>
         </Col>
@@ -56,6 +63,7 @@ export const DoctorDashboard = () => {
               value={stats.completed}
               valueStyle={{ color: '#3f8600' }}
               prefix={<CheckCircleOutlined />}
+              loading={loading}
             />
           </Card>
         </Col>

@@ -18,21 +18,21 @@ export const Login = () => {
     try {
       const response = await api.post('/auth/login', values);
       const { user } = response.data;
-      console.log("user", response);
-      
+
+      // Store auth state — login already returned a verified user, no need to re-call /auth/me
       setAuth(user);
-      
+
+      message.success('Login successful');
+
       // Navigate based on role
       if (user.role === 'Admin') navigate('/admin');
       else if (user.role === 'Doctor') navigate('/doctor');
       else navigate('/patient');
-
-      message.success('Login successful');
     } catch (error: any) {
-      if(error.response?.status === 401) {
+      if (error.response?.status === 401) {
         message.error('Invalid email or password');
       } else {
-        console.log("error", error);
+        console.error('Login error:', error);
         message.error('An error occurred during login');
       }
     } finally {
