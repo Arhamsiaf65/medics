@@ -18,7 +18,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/login' && originalRequest.url !== '/auth/me') {
       originalRequest._retry = true;
       try {
-        await axios.post(`${API_URL}/api/auth/refresh`, {}, { withCredentials: true });
+        await api.post('/auth/refresh', {}, { withCredentials: true });
         // Retry the original request; axios will automatically include the new cookie!
         return api(originalRequest);
       } catch (refreshError) {
