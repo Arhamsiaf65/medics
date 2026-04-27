@@ -18,13 +18,15 @@ export const DoctorSlots = () => {
       try {
         const dateStr = date.format('YYYY-MM-DD');
         const response = await api.get(`/appointments/doctor/my-slots?date=${dateStr}`);
-        
-        const { allSlots, bookedSlots } = response.data;
+
+        const allSlots = Array.isArray(response.data?.allSlots) ? response.data.allSlots : [];
+        const bookedSlots = Array.isArray(response.data?.bookedSlots) ? response.data.bookedSlots : [];
+
         const formattedSlots = allSlots.map((slot: string) => ({
           timeSlot: slot,
           isBooked: bookedSlots.includes(slot)
         }));
-        
+
         setSlots(formattedSlots);
       } catch (error) {
         message.error("Failed to fetch slots");
@@ -70,7 +72,9 @@ export const DoctorSlots = () => {
         dataSource={slots} 
         rowKey="timeSlot" 
         loading={loading}
+        locale={{ emptyText: loading ? 'Loading slots...' : 'No schedule available for this date. Please update your working hours in profile.' }}
         className="mt-4 shadow-sm border border-gray-100 rounded-lg"
+        pagination={false}
       />
     </div>
   );

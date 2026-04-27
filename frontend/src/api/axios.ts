@@ -1,15 +1,13 @@
 import axios from 'axios';
 
-// In local dev, VITE_API_URL is intentionally unset so axios uses the relative '/api' path.
-// Vite's dev server proxy (vite.config.ts) intercepts /api/* and forwards to the backend.
-// This makes cookies same-origin (localhost:5173) → no SameSite/CORS cookie issues.
-// Set VITE_API_URL in Vercel/Local env to point to your Railway backend
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://medics-production.up.railway.app/';
-const API_URL = `${BACKEND_URL.replace(/\/$/, '')}/api`;
+// Default to the local proxy path in development.
+// If VITE_API_URL is set, use that backend instead.
+const BACKEND_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = BACKEND_URL ? `${BACKEND_URL.replace(/\/$/, '')}/api` : '/api';
 
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // Still safe to leave true, even if we are using Bearer tokens now
+  withCredentials: true,
 });
 
 // Attach token to every request if we have it
