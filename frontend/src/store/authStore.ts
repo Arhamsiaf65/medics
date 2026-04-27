@@ -28,7 +28,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     try {
       await api.post('/auth/logout');
-    } catch(e) {}
+    } catch (e) { }
+    localStorage.removeItem('token'); // Clear the Bearer token
     set({ user: null });
     window.location.href = '/login';
   },

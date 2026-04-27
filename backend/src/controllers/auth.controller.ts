@@ -70,6 +70,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       // New registrations via this portal are always Patients
       res.status(201).json({
         user: { _id: user._id, name: user.name, email: user.email, role: 'Patient' },
+        token, // Return token directly to bypass cookie issues
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -95,6 +96,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
       res.json({
         user: { _id: user._id, name: user.name, email: user.email, role },
+        token, // Return token directly to bypass cookie issues
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });

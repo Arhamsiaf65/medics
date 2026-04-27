@@ -17,7 +17,12 @@ export const Register = () => {
     setLoading(true);
     try {
       const response = await api.post('/auth/register', values);
-      const { user } = response.data;
+      const { user, token } = response.data;
+      
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+
       setAuth(user);
       
       message.success('Registration successful');

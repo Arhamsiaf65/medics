@@ -13,6 +13,10 @@ declare global {
 export const protect = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   let token = req.cookies?.token;
 
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
   if (token) {
     try {
       const secret = process.env.JWT_SECRET as string || 'fallback_secret';

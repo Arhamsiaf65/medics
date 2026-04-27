@@ -17,7 +17,12 @@ export const Login = () => {
     setLoading(true);
     try {
       const response = await api.post('/auth/login', values);
-      const { user } = response.data;
+      const { user, token } = response.data;
+
+      // Store token for Bearer auth
+      if (token) {
+        localStorage.setItem('token', token);
+      }
 
       // Store auth state — login already returned a verified user, no need to re-call /auth/me
       setAuth(user);

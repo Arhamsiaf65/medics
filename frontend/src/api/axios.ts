@@ -1,78 +1,37 @@
 import axios from 'axios';
 
-// VITE_API_URL is the base domain (e.g. https://example.railway.app).
-// We always append /api so individual request paths stay clean (e.g. /auth/login).
-const BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, '');
-const API_URL = `${BASE}/api`;
+// In local dev, VITE_API_URL is intentionally unset so axios uses the relative '/api' path.
+// Vite's dev server proxy (vite.config.ts) intercepts /api/* and forwards to the backend.
+// This makes cookies same-origin (localhost:5173) → no SameSite/CORS cookie issues.
+// Set VITE_API_URL in Vercel/Local env to point to your Railway backend
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://medics-production.up.railway.app';
+const API_URL = `${BACKEND_URL.replace(/\/$/, '')}/api`;
 
-// ✅ Create the instance with baseURL and withCredentials so cookies are always sent
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true, // critical: sends HttpOnly cookies on every request
+  withCredentials: true, // Still safe to leave true, even if we are using Bearer tokens now
 });
 
-// Debug logging (remove in production)
+// Attach token to every request if we have it
 api.interceptors.request.use((config) => {
-  console.log('Making request to:', config.url, 'with credentials:', config.withCredentials);
+  const token = localStorage.getItem('token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
-// Flag to prevent multiple concurrent refresh attempts / logout redirects
-let isRefreshing = false;
-let isLoggingOut = false;
-let refreshSubscribers: Array<() => void> = [];
-
-const onRefreshed = () => {
-  refreshSubscribers.forEach((cb) => cb());
-  refreshSubscribers = [];
-};
-
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    const isAuthEndpoint =
-      originalRequest.url?.includes('/auth/login') ||
-      originalRequest.url?.includes('/auth/me') ||
-      originalRequest.url?.includes('/auth/refresh') ||
-      originalRequest.url?.includes('/auth/register');
-
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
-      originalRequest._retry = true;
-
-      if (isRefreshing) {
-        // Queue this request until refresh completes
-        return new Promise<void>((resolve) => {
-          refreshSubscribers.push(resolve);
-        }).then(() => api(originalRequest));
-      }
-
-      isRefreshing = true;
-
-      try {
-        await api.post('/auth/refresh'); // withCredentials is already set globally
-        isRefreshing = false;
-        onRefreshed();
-        return api(originalRequest);
-      } catch (refreshError) {
-        isRefreshing = false;
-        refreshSubscribers = [];
-
-        if (!isLoggingOut) {
-          isLoggingOut = true;
-          console.warn('Refresh token failed, logging out:', refreshError);
-
-          localStorage.clear();
-          sessionStorage.clear();
-
-          setTimeout(() => {
-            isLoggingOut = false; // reset so future logins work
-            window.location.href = '/login';
-          }, 100);
-        }
-        return Promise.reject(refreshError);
-      }
+  (error) => {
+    // If we get a 401 Unauthorized (and it's not the login/register endpoint failing)
+    // we simply log the user out. No complex refresh token loops.
+    const url = error.config?.url || '';
+    if (error.response?.status === 401 && !url.includes('/auth/login') && !url.includes('/auth/register')) {
+      console.warn('Session expired. Logging out.');
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/login';
     }
 
     // Handle timeout errors silently
