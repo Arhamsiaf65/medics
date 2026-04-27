@@ -14,7 +14,7 @@ export const DoctorAppointments = () => {
   const { message } = App.useApp();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { openDrawer } = useChatStore();
+  const { openDrawer, unreadCounts } = useChatStore();
   const { user } = useAuthStore();
 
   const fetchAppointments = async () => {
@@ -82,7 +82,7 @@ export const DoctorAppointments = () => {
       key: 'action',
       render: (_: any, record: any) => (
         <Space>
-          <Badge count={useChatStore(state => state.unreadCounts[record.patient?._id || record.patient]) || 0}>
+          <Badge count={unreadCounts[record.patient?._id || record.patient] || 0}>
             <Button 
               type="primary" 
               size="small" 

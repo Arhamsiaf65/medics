@@ -12,7 +12,7 @@ export const PatientAppointments = () => {
   const { message } = App.useApp();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { openDrawer } = useChatStore();
+  const { openDrawer, unreadCounts } = useChatStore();
 
   const fetchAppointments = async () => {
     setLoading(true);
@@ -75,7 +75,7 @@ export const PatientAppointments = () => {
           {(record.status === 'pending' || record.status === 'approved') && (
             <Button danger size="small" onClick={() => cancelAppointment(record._id)}>Cancel</Button> 
           )}
-          <Badge count={useChatStore(state => state.unreadCounts[record.doctor?.user?._id]) || 0}>
+          <Badge count={unreadCounts[record.doctor?.user?._id] || 0}>
             <Button 
               type="primary" 
               size="small" 
