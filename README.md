@@ -112,9 +112,3 @@ Medics is a full-stack medical appointment system with patient, doctor, and admi
 - Email: `admin@admin.com`
 - Password: `admin123`
 
-## Notes
-
-- There is no explicit architecture diagram asset present in the repository.
-- The described architecture is derived from the current codebase and deployment documentation.
-- Redis is used for both Socket.IO pub/sub and BullMQ queueing, so a single `REDIS_URL` should be shared across backend components.
-- The frontend uses the backend proxy in development and a production API base URL via `VITE_API_URL`.
