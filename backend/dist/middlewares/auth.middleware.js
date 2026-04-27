@@ -2,6 +2,9 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
 export const protect = async (req, res, next) => {
     let token = req.cookies?.token;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
     if (token) {
         try {
             const secret = process.env.JWT_SECRET || 'fallback_secret';

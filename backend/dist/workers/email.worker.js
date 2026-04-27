@@ -1,6 +1,7 @@
 import { Worker } from "bullmq";
 import { getTransporter } from "../utils/mailer.js";
 import { Appointment } from "../models/appointment.model.js";
+import { getRedis } from "../config/redis.js";
 const statusMessages = {
     approved: {
         subject: "Appointment Approved ✅",
@@ -86,10 +87,7 @@ export const startEmailWorker = () => {
         });
         console.log(`[EmailWorker] Email sent to ${email} for appointment ${appointmentId} (${status})`);
     }, {
-        connection: {
-            host: process.env.REDIS_HOST || "127.0.0.1",
-            port: Number(process.env.REDIS_PORT) || 6379,
-        },
+        connection: getRedis().options, // Use the same Redis connection as Socket.io
     });
     worker.on("failed", (job, err) => {
         console.error(`[EmailWorker] Job ${job?.id} failed:`, err.message);

@@ -9,7 +9,7 @@ const generateToken = (id) => {
     });
 };
 const generateRefreshToken = (id) => {
-    return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET || 'fallback_refresh_secret', {
+    return jwt.sign({ id }, process.env.JWT_SECRET || 'fallback_secret', {
         expiresIn: '30d',
     });
 };
@@ -17,13 +17,13 @@ const setTokensInCookies = (res, token, refreshToken) => {
     res.cookie('token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax', // 'strict' blocks cookies in cross-origin requests (e.g. localhost → Railway)
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax', // 'strict' blocks cookies in cross-origin requests (e.g. localhost → Railway)
         maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     });
 };
@@ -58,6 +58,7 @@ export const register = async (req, res) => {
             // New registrations via this portal are always Patients
             res.status(201).json({
                 user: { _id: user._id, name: user.name, email: user.email, role: 'Patient' },
+                token, // Return token directly to bypass cookie issues
             });
         }
         else {
@@ -80,6 +81,7 @@ export const login = async (req, res) => {
             const role = await determineUserRole(user._id);
             res.json({
                 user: { _id: user._id, name: user.name, email: user.email, role },
+                token, // Return token directly to bypass cookie issues
             });
         }
         else {
@@ -92,8 +94,13 @@ export const login = async (req, res) => {
     }
 };
 export const logout = async (req, res) => {
-    res.clearCookie('token');
-    res.clearCookie('refreshToken');
+    const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+    };
+    res.clearCookie('token', cookieOptions);
+    res.clearCookie('refreshToken', cookieOptions);
     res.status(200).json({ message: 'Logged out successfully' });
 };
 export const getMe = async (req, res) => {
@@ -108,16 +115,20 @@ export const getMe = async (req, res) => {
 export const refreshTokenHandler = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
+        console.log('Refresh token attempt, cookie present:', !!refreshToken);
         if (!refreshToken) {
+            console.log('No refresh token in cookies');
             res.status(401).json({ message: 'Refresh token is required' });
             return;
         }
-        const secret = process.env.REFRESH_TOKEN_SECRET || 'fallback_refresh_secret';
+        const secret = process.env.JWT_SECRET || 'fallback_secret';
         jwt.verify(refreshToken, secret, (err, decoded) => {
             if (err) {
+                console.log('Refresh token verification failed:', err.message);
                 res.status(403).json({ message: 'Invalid or expired refresh token' });
                 return;
             }
+            console.log('Refresh token verified for user:', decoded.id);
             const newToken = generateToken(decoded.id);
             res.cookie('token', newToken, {
                 httpOnly: true,
@@ -129,7 +140,7 @@ export const refreshTokenHandler = async (req, res) => {
         });
     }
     catch (error) {
-        console.error(error);
+        console.error('Refresh token handler error:', error);
         res.status(500).json({ message: 'Server Error' });
     }
 };
