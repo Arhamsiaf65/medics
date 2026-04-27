@@ -33,7 +33,7 @@
     "ts-node": "^10.9.2"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "node ./node_modules/typescript/bin/tsc",
     "prestart": "npm run build",
     "postinstall": "npm run build",
     "start": "node dist/server.js",
