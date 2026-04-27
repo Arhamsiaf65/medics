@@ -79,13 +79,24 @@ export const startEmailWorker = () => {
             color: "#6b7280",
         };
         const transporter = getTransporter();
-        await transporter.sendMail({
-            from: `"Medics" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: meta.subject,
-            html: buildEmailHtml(meta.heading, meta.color, appointment),
-        });
-        console.log(`[EmailWorker] Email sent to ${email} for appointment ${appointmentId} (${status})`);
+        try {
+            await transporter.sendMail({
+                from: `"Medics" <${process.env.EMAIL_USER}>`,
+                to: email,
+                subject: meta.subject,
+                html: buildEmailHtml(meta.heading, meta.color, appointment),
+            });
+            console.log(`[EmailWorker] ✅ Email sent successfully to ${email} for appointment ${appointmentId} (${status})`);
+        }
+        catch (emailError) {
+            console.error(`[EmailWorker] ❌ Email send failed for ${appointmentId}:`, {
+                error: emailError.message,
+                code: emailError.code,
+                command: emailError.command,
+                response: emailError.response
+            });
+            throw emailError; // Re-throw to mark job as failed
+        }
     }, {
         connection: getRedis().options, // Use the same Redis connection as Socket.io
     });
