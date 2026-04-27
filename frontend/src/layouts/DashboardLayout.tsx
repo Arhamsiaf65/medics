@@ -35,7 +35,8 @@ export const DashboardLayout = () => {
     menuItems.push(
       { key: '/doctor', icon: <DashboardOutlined />, label: 'Dashboard' },
       { key: '/doctor/schedule', icon: <CalendarOutlined />, label: 'My Schedule' },
-      { key: '/doctor/appointments', icon: <UserOutlined />, label: 'Appointments' }
+      { key: '/doctor/appointments', icon: <UserOutlined />, label: 'Appointments' },
+      { key: '/doctor/profile', icon: <SettingOutlined />, label: 'Profile Settings' }
     );
   } else if (user?.role === 'Patient') {
     menuItems.push(

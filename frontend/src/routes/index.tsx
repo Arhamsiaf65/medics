@@ -12,6 +12,7 @@ import { PatientAppointments } from '../pages/patient/Appointments';
 import { DoctorDashboard } from '../pages/doctor/Dashboard';
 import { DoctorSlots } from '../pages/doctor/MySlots';
 import { DoctorAppointments } from '../pages/doctor/Appointments';
+import { DoctorProfile } from '../pages/doctor/Profile';
 
 import { AdminDashboard } from '../pages/admin/Dashboard';
 import { ManageDoctors } from '../pages/admin/ManageDoctors';
@@ -59,7 +60,8 @@ export const router = createBrowserRouter([
         children: [
           { path: '', element: <DoctorDashboard /> },
           { path: 'schedule', element: <DoctorSlots /> },
-          { path: 'appointments', element: <DoctorAppointments /> }
+          { path: 'appointments', element: <DoctorAppointments /> },
+          { path: 'profile', element: <DoctorProfile /> }
         ]
       }
     ]

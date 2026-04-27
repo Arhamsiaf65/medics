@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Typography, Table, Tag, Select, App, Button, Space } from 'antd';
+import { Typography, Table, Tag, Select, App, Button, Space, Badge } from 'antd';
 import { MessageOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import api from '../../api/axios';
@@ -82,23 +82,22 @@ export const DoctorAppointments = () => {
       key: 'action',
       render: (_: any, record: any) => (
         <Space>
-          <Button 
-            type="primary" 
-            size="small" 
-            icon={<MessageOutlined />} 
-            onClick={() => {
-              // The doctor ID is the currently logged in user ID since they are the doctor here
-              // actually wait, the record needs patientId. 
-              // record.patient is either an object {_id: ...} or string.
-              const patientId = record.patient?._id || record.patient;
-              const doctorId = user?._id;
-              if (doctorId && patientId) {
-                openDrawer(doctorId, patientId);
-              }
-            }}
-          >
-            Chat
-          </Button>
+          <Badge count={useChatStore(state => state.unreadCounts[record.patient?._id || record.patient]) || 0}>
+            <Button 
+              type="primary" 
+              size="small" 
+              icon={<MessageOutlined />} 
+              onClick={() => {
+                const patientId = record.patient?._id || record.patient;
+                const doctorId = user?._id;
+                if (doctorId && patientId) {
+                  openDrawer(doctorId, patientId);
+                }
+              }}
+            >
+              Chat
+            </Button>
+          </Badge>
         </Space>
       ),
     },

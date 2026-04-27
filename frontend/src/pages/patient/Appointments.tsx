@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Typography, Table, Button, Tag, App, Space } from 'antd';
+import { Typography, Table, Button, Tag, App, Space, Badge } from 'antd';
 import { MessageOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import api from '../../api/axios';
@@ -75,14 +75,16 @@ export const PatientAppointments = () => {
           {(record.status === 'pending' || record.status === 'approved') && (
             <Button danger size="small" onClick={() => cancelAppointment(record._id)}>Cancel</Button> 
           )}
-          <Button 
-            type="primary" 
-            size="small" 
-            icon={<MessageOutlined />} 
-            onClick={() => openDrawer(record.doctor.user._id, record.patient)}
-          >
-            Chat
-          </Button>
+          <Badge count={useChatStore(state => state.unreadCounts[record.doctor?.user?._id]) || 0}>
+            <Button 
+              type="primary" 
+              size="small" 
+              icon={<MessageOutlined />} 
+              onClick={() => openDrawer(record.doctor.user._id, record.patient)}
+            >
+              Chat
+            </Button>
+          </Badge>
         </Space>
       ),
     },

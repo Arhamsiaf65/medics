@@ -16,6 +16,7 @@ interface ChatState {
   isDrawerOpen: boolean;
   activePatientId: string | null;
   activeDoctorId: string | null;
+  unreadCounts: Record<string, number>;
 
   connect: (userId: string) => void;
   disconnect: () => void;
@@ -35,6 +36,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isDrawerOpen: false,
   activePatientId: null,
   activeDoctorId: null,
+  unreadCounts: {},
 
   connect: (userId: string) => {
     if (get().socket?.connected) return;
@@ -53,7 +55,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
 
     socket.on('chat:message', (data: ChatMessage) => {
-      set((state) => ({ messages: [...state.messages, data] }));
+      const state = get();
+      // If drawer is open and the message belongs to the active chat
+      const isFromActiveChat = 
+        (state.activeDoctorId === data.senderId || state.activePatientId === data.senderId);
+      
+      if (state.isDrawerOpen && isFromActiveChat) {
+        set({ messages: [...state.messages, data] });
+      } else {
+        // Increment unread count for the sender
+        set((prev) => ({
+          unreadCounts: {
+            ...prev.unreadCounts,
+            [data.senderId]: (prev.unreadCounts[data.senderId] || 0) + 1
+          }
+        }));
+      }
     });
 
     set({ socket });
@@ -80,7 +97,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   openDrawer: async (doctorId: string, patientId: string) => {
-    set({ isDrawerOpen: true, activeDoctorId: doctorId, activePatientId: patientId, messages: [] });
+      // Clear unread counts for both users just in case (one is the current user, one is the partner)
+      const currentUnreads = { ...get().unreadCounts };
+      delete currentUnreads[doctorId];
+      delete currentUnreads[patientId];
+
+      set({ 
+        isDrawerOpen: true, 
+        activeDoctorId: doctorId, 
+        activePatientId: patientId, 
+        messages: [],
+        unreadCounts: currentUnreads
+      });
     // Join chat when opening drawer
     get().joinChat(doctorId, patientId);
     
