@@ -15,19 +15,25 @@ export const getTransporter = (): nodemailer.Transporter => {
                 },
             });
         } else {
-            // Gmail with manual SMTP settings (sometimes more reliable)
-            console.log("[Mailer] Using Gmail SMTP");
+            // Gmail with SSL on port 465 (more secure and sometimes more reliable)
+            console.log("[Mailer] Using Gmail SMTP (SSL)");
             transporter = nodemailer.createTransport({
                 host: 'smtp.gmail.com',
-                port: 587,
-                secure: false,
+                port: 465,
+                secure: true, // use SSL
                 auth: {
                     user: process.env.EMAIL_USER,
                     pass: process.env.EMAIL_PASS,
                 },
+                // Additional options for Railway compatibility
                 tls: {
-                    ciphers: 'SSLv3'
-                }
+                    rejectUnauthorized: false,
+                    minVersion: 'TLSv1.2'
+                },
+                // Connection timeout and retry options
+                connectionTimeout: 60000,
+                greetingTimeout: 30000,
+                socketTimeout: 60000
             });
         }
 
