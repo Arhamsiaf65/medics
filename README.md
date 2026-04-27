@@ -105,6 +105,12 @@ Medics is a full-stack medical appointment system with patient, doctor, and admi
 - Vercel config file: `frontend/vercel.json`
 - Environment variable:
   - `VITE_API_URL`
+- Production URL: `https://medics-zeta.vercel.app/`
+
+### Demo admin access
+
+- Email: `admin@admin.com`
+- Password: `admin123`
 
 ## Notes
 
