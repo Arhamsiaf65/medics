@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import appointmentRoutes from "./routes/appointments.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
+import doctorRoutes from "./routes/doctor.routes.js";
 import { initializeSocketServer } from "./config/connectSocket.js";
 import { initializeChatSocket } from "./chat/chat.js";
 import http from "http";
@@ -36,6 +37,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/doctor", doctorRoutes);
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
