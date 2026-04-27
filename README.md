@@ -11,6 +11,10 @@ Medics is a full-stack medical appointment system with patient, doctor, and admi
 
 ## Architecture
 
+### Architecture diagram
+
+![System architecture diagram](./architecture_diagram.png)
+
 ### Frontend
 
 - React 19, Vite, TypeScript
