@@ -209,6 +209,14 @@ export const bookAppointment = async (req: Request, res: Response): Promise<void
             paymentStatus: 'pending'
         });
 
+        // Send email notification for approved appointment
+        const emailQueue: Queue = getEmailQueue();
+        await emailQueue.add(`appointment-update`, {
+            appointmentId: appointment._id,
+            status: 'approved',
+            email: req.user.email,
+        });
+
         res.status(201).json(appointment);
     } catch (error) {
         console.error(error);
@@ -232,6 +240,15 @@ export const cancelAppointment = async (req: Request, res: Response): Promise<vo
 
         appointment.status = 'cancelled';
         await appointment.save();
+
+        // Send email notification for cancelled appointment
+        const emailQueue: Queue = getEmailQueue();
+        await emailQueue.add(`appointment-update`, {
+            appointmentId: appointment._id,
+            status: 'cancelled',
+            email: req.user.email,
+        });
+
         res.json(appointment);
     } catch (error) {
         console.error(error);
