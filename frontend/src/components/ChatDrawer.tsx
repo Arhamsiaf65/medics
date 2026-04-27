@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Drawer, Input, Button, Typography, Avatar, List } from 'antd';
-import { SendOutlined, UserOutlined } from '@ant-design/icons';
+import { Drawer, Input, Button, } from 'antd';
+import { SendOutlined } from '@ant-design/icons';
 import { useChatStore } from '../store/chatStore';
 import { useAuthStore } from '../store/authStore';
 import dayjs from 'dayjs';
 
-const { Text } = Typography;
 
 export const ChatDrawer: React.FC = () => {
   const { isDrawerOpen, closeDrawer, activeDoctorId, activePatientId, messages, sendMessage } = useChatStore();
