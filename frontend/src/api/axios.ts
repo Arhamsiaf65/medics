@@ -4,7 +4,7 @@ import axios from 'axios';
 // Vite's dev server proxy (vite.config.ts) intercepts /api/* and forwards to the backend.
 // This makes cookies same-origin (localhost:5173) → no SameSite/CORS cookie issues.
 // Set VITE_API_URL in Vercel/Local env to point to your Railway backend
-const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://medics-production.up.railway.app';
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://medics-production.up.railway.app/';
 const API_URL = `${BACKEND_URL.replace(/\/$/, '')}/api`;
 
 const api = axios.create({
@@ -24,10 +24,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // If we get a 401 Unauthorized (and it's not the login/register endpoint failing)
+    // If we get a 401 Unauthorized (and it's not an auth endpoint failing)
     // we simply log the user out. No complex refresh token loops.
     const url = error.config?.url || '';
-    if (error.response?.status === 401 && !url.includes('/auth/login') && !url.includes('/auth/register')) {
+    if (error.response?.status === 401 && !url.includes('/auth/login') && !url.includes('/auth/register') && !url.includes('/auth/me')) {
       console.warn('Session expired. Logging out.');
       localStorage.clear();
       sessionStorage.clear();
